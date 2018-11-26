@@ -19,7 +19,7 @@ namespace MazeGameServer.Controllers
         public IActionResult CreateMaze(int z, int y, int x)
         {
             Maze maze = new Maze(z, y, x);
-            maze.determineMazeDifficulty();
+            maze.DetermineMazeDifficulty();
             return View(maze);
         }
         

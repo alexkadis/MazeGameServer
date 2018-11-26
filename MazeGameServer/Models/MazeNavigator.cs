@@ -18,7 +18,7 @@ namespace MazeGameServer.Models
             this.Moves = 0;
             this.MyMaze = maze;
             this.Utilities = new Utils();
-            Random rnd = new Random();
+            //Random rnd = new Random();
             this.Character = new Character("navigator", MyMaze);
         }
 
@@ -45,18 +45,22 @@ namespace MazeGameServer.Models
         {
             bool isValidPath = false;
             Stack<char> path = new Stack<char>(possiblePath.ToArray().Reverse());
-
-            for (int i = 0; i < path.Count; i++)
+            int i = 0;
+            for (i = 0; i < possiblePath.Length; i++)
             {
                 string next = path.Pop().ToString();
                 if (this.Character.CanMoveDirection(next))
                 {
                     this.Character.move(next);
                     this.Moves++;
-                    break;
+                }
+                else
+                {
+                    throw new Exception($"Invalid direction: {next}");
                 }
             }
-            return this.MyMaze.IsMazeSolved(this.Character.CurrentLocation);
+            var wait = true;
+            return this.Character.CurrentLocation.Equals(this.MyMaze.EndLocation);
         }
     }
 }

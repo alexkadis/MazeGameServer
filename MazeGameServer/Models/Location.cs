@@ -25,7 +25,8 @@
         }
         public bool Equals(Location otherLocation)
         {
-            return (this.Z == otherLocation.Z && this.Y == otherLocation.X && this.X == otherLocation.X);
+            var output = (this.Z == otherLocation.Z && this.Y == otherLocation.Y && this.X == otherLocation.X);
+            return output;
         }
     }
 }
