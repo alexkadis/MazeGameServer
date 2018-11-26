@@ -11,21 +11,30 @@ namespace MazeGameServer.Models
 	    public Location CurrentLocation;
 	    public Location PreviousLocation;
 	    public Maze MyMaze;
-	    private Utils Utilities = new Utils();
+	    //private Utils Utilities = new Utils();
 
         public Character (string name, Maze myMaze)
         {
             this.Name = name;
             this.MyMaze = myMaze;
             this.CurrentLocation = this.MyMaze.StartLocation.Clone();
-            this.move("");
+            this.Move(String.Empty);
+        }
+
+        public Character Clone()
+        {
+            return new Character
+                (
+                String.Copy(this.Name),
+                this.MyMaze
+                );
         }
 
         /**
          * If the direction parameter is valid, change the current location to that cell
          * @param direction Direction to move the character
          */
-        public bool move(string direction)
+        public bool Move(string direction)
         {
             // Make a clean copy (not a reference)
             this.PreviousLocation = this.CurrentLocation.Clone();
@@ -123,19 +132,31 @@ namespace MazeGameServer.Models
             {
                 return true;
             }
-            var location = this.MyMaze.MazeGrid[this.CurrentLocation.Z][this.CurrentLocation.Y][this.CurrentLocation.X];
 
-            switch (direction)
+            if (this.CurrentLocation.IsValid(this.MyMaze.MazeGrid.Length, this.MyMaze.MazeGrid[0].Length, this.MyMaze.MazeGrid[0][0].Length))
             {
-                case Utils.North:
-                    return location.North;
-                case Utils.East:
-                    return location.East;
-                case Utils.South:
-                    return location.South;
-                case Utils.West:
-                    return location.West;
+                try
+                {
+                    var location = this.MyMaze.MazeGrid[this.CurrentLocation.Z][this.CurrentLocation.Y][this.CurrentLocation.X];
+                    switch (direction)
+                    {
+                        case Utils.North:
+                            return location.North;
+                        case Utils.East:
+                            return location.East;
+                        case Utils.South:
+                            return location.South;
+                        case Utils.West:
+                            return location.West;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"{this.CurrentLocation.ToString()} \n{ex}\n\n\n");
+                }
             }
+
             return false;
         }
     }

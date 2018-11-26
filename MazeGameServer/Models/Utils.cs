@@ -30,20 +30,31 @@ namespace MazeGameServer.Models
 
 		}
 
-        public string CompressTemplate(Maze myMaze)
+        public string CompressTemplate(Maze myMaze, bool encode = true)
 		{
             Dictionary<string, object> template = new Dictionary<string, object>();
             template.Add("MazePath", myMaze.MazePath);
-			template.Add("StartLocation", this.SerializeLocation(myMaze.StartLocation));
-			template.Add("EndLocation", this.SerializeLocation(myMaze.EndLocation)); //, Formatting.Indented));
+            if (encode)
+            {
+                template.Add("StartLocation", this.SerializeLocation(myMaze.StartLocation));
+                template.Add("EndLocation", this.SerializeLocation(myMaze.EndLocation));
+            }
+            else
+            {
+                template.Add("StartLocation", myMaze.StartLocation);
+                template.Add("EndLocation", myMaze.EndLocation);
+            }
             template.Add("BestPath", myMaze.BestPath);
             template.Add("MazeDifficulty", myMaze.MazeDifficulty);
 			template.Add("GridWidth", myMaze.GridWidth);
 			template.Add("GridHeight", myMaze.GridHeight);
 			template.Add("GridLayers", myMaze.GridLayers);
-			var jsonobj = JsonConvert.SerializeObject(template);
-			var compressed = LZString.CompressToEncodedURIComponent(jsonobj);
-			return compressed;
+			var compressed = JsonConvert.SerializeObject(template);
+            if (encode)
+            {
+                compressed = LZString.CompressToEncodedURIComponent(compressed);
+            }
+            return compressed;
 		}
 
         public Maze UncompressTemplate(string mazeTemplateCompressed)
@@ -99,24 +110,6 @@ namespace MazeGameServer.Models
             return str;
         }
 
-        //public string[] GetRandomDirections()
-        //{
-        //    Random rnd = new Random();
-        //    string[] temp = new string[this.Directions.Length];
-
-        //    int j;
-        //    int i;
-        //    string x;
-        //    for (i = this.Directions.Length - 1; i > 0; i--)
-        //    {
-        //        j = rnd.Next(0, this.Directions.Length - 1);
-        //        x = temp[i];
-        //        temp[i] = temp[j];
-        //        temp[j] = x;
-        //    }
-        //    return temp;
-        //}
-
         public string[] GetRandomDirections()
         {
             string[] temp = new string[this.Directions.Length];
@@ -133,24 +126,6 @@ namespace MazeGameServer.Models
             }
             return temp;
         }
-
-        //public string[] GetRandomDirections()
-        //{
-        //    Random rnd = new Random();
-        //    string[] temp = new string[this.Directions.Length];
-
-        //    int j;
-        //    int i;
-        //    string x;
-        //    for (i = this.Directions.Length - 1; i > 0; i--)
-        //    {
-        //        j = rnd.Next(0, this.Directions.Length - 1);
-        //        x = temp[i];
-        //        temp[i] = temp[j];
-        //        temp[j] = x;
-        //    }
-        //    return temp;
-        //}
 
     }
 }

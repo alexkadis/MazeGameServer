@@ -10,19 +10,50 @@ namespace MazeGameServer.Controllers
 {
     public class HomeController : Controller
     {
+        Utils Utilities { get; }
+        //LZString lzString { get;  }
+
+        public HomeController()
+        {
+            this.Utilities = new Utils();
+            //this.lzString = new LZString();
+        }
+
         public IActionResult Index()
         {
             return View();
         }
 
         [HttpGet]
-        public IActionResult CreateMaze(int z, int y, int x)
+        public IActionResult Generate(int z, int y, int x, int n = 1, bool determineDifficulty = true)
+        {
+            string json = String.Empty;
+
+            for (int i = 0; i < n; i++)
+            {
+                json += CreateMaze(z, y, x, determineDifficulty);
+                if (i != n - 1)
+                {
+                    json += ",";
+                }
+            }
+
+            return Content("{" + json +  "}", "application / json");
+        }
+
+        private string CreateMaze(int z, int y, int x, bool determineDifficulty = true)
         {
             Maze maze = new Maze(z, y, x);
-            maze.DetermineMazeDifficulty();
-            return View(maze);
+            if (determineDifficulty)
+            {
+                maze.DetermineMazeDifficulty(10000, 100, 100);
+            }
+            var template = Utilities.CompressTemplate(maze, false);
+            template = $"\"{maze.MazeDifficulty}\": {template}";
+
+            return template;
         }
-        
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

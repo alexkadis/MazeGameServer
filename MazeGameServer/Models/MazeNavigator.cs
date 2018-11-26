@@ -11,7 +11,7 @@ namespace MazeGameServer.Models
         public string Path { get; set; }
         private Maze MyMaze { get; set; }
         private Utils Utilities { get; }
-        private Character Character { get; }
+        private Character Character { get; set; }
 
         public MazeNavigator(Maze maze)
         {
@@ -22,28 +22,44 @@ namespace MazeGameServer.Models
             this.Character = new Character("navigator", MyMaze);
         }
 
-        public void Navigate()
+        public void Navigate(int maxMoves = 500)
         {
-            while (!this.MyMaze.IsMazeSolved(this.Character.CurrentLocation))
+            this.Reset();
+            while (true)
             {
+                if (this.Moves >= maxMoves)
+                {
+                    this.Moves = -1;
+                    return;
+                }
                 var directions = this.Utilities.GetRandomDirections();
                 for (var i = 0; i < directions.Length; i++)
                 {
                     if (this.Character.CanMoveDirection(directions[i]))
                     {
-                        this.Character.move(directions[i]);
+                        this.Character.Move(directions[i]);
                         this.Path += directions[i];
                         this.Moves++;
                         break;
                     }
                 }
+                if (this.Character.CurrentLocation.Equals(this.MyMaze.EndLocation))
+                {
+                    break;
+                }
             }
-            this.Character.ResetCharacter();
+        }
+
+        private void Reset()
+        {
+            //this.Character = this.Character.Clone();
+            this.Character.CurrentLocation = this.MyMaze.StartLocation.Clone();
+            this.Path = String.Empty;
+            this.Moves = 0;
         }
 
         public bool IsNavigatablePath(string possiblePath)
         {
-            bool isValidPath = false;
             Stack<char> path = new Stack<char>(possiblePath.ToArray().Reverse());
             int i = 0;
             for (i = 0; i < possiblePath.Length; i++)
@@ -51,7 +67,7 @@ namespace MazeGameServer.Models
                 string next = path.Pop().ToString();
                 if (this.Character.CanMoveDirection(next))
                 {
-                    this.Character.move(next);
+                    this.Character.Move(next);
                     this.Moves++;
                 }
                 else
@@ -59,7 +75,6 @@ namespace MazeGameServer.Models
                     throw new Exception($"Invalid direction: {next}");
                 }
             }
-            var wait = true;
             return this.Character.CurrentLocation.Equals(this.MyMaze.EndLocation);
         }
     }

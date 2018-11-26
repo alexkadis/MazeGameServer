@@ -24,7 +24,9 @@
     <nav class="">
         <ul class="nav navbar-nav">
             <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-            <li><a asp-area="" asp-controller="Home" asp-action="CreateMaze" asp-route-Z="4" asp-route-Y="8", asp-route-X="8">CreateMaze</a></li>
+            <li><a asp-area="" asp-controller="Home" asp-action="Generate" asp-route-Z="4" asp-route-Y="8" , asp-route-X="8">Create 1 Maze</a></li>
+            <li><a asp-area="" asp-controller="Home" asp-action="Generate" asp-route-Z="4" asp-route-Y="8" , asp-route-X="8" asp-route-n="5" asp-route-determineDifficulty="true">Create 5 Mazes</a></li>
+            <li><a asp-area="" asp-controller="Home" asp-action="Generate" asp-route-Z="4" asp-route-Y="8" , asp-route-X="8" asp-route-n="100" asp-route-determineDifficulty="true">Create 100 Mazes</a></li>
         </ul>
     </nav>
 
