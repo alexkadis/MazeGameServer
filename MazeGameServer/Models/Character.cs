@@ -8,16 +8,16 @@ namespace MazeGameServer.Models
     public class Character
     {
         public string Name;
-	    public Dictionary<string, int> CurrentLocation;
-	    public Dictionary<string, int> PreviousLocation;
-	    public Maze ThisMaze;
+	    public Location CurrentLocation;
+	    public Location PreviousLocation;
+	    public Maze MyMaze;
 	    private Utils Utilities = new Utils();
 
         public Character (string name, Maze myMaze)
         {
             this.Name = name;
-            this.ThisMaze = myMaze;
-            this.CurrentLocation = this.ThisMaze.StartLocation;
+            this.MyMaze = myMaze;
+            this.CurrentLocation = this.MyMaze.StartLocation.Clone();
             this.move("");
         }
 
@@ -28,7 +28,7 @@ namespace MazeGameServer.Models
         public bool move(string direction)
         {
             // Make a clean copy (not a reference)
-            this.PreviousLocation = new Dictionary<string, int>() { this.CurrentLocation };
+            this.PreviousLocation = this.CurrentLocation.Clone();
 
             if (this.CanMoveDirection(direction))
             {
@@ -47,7 +47,7 @@ namespace MazeGameServer.Models
                         this.SetRelativeLocation(0, 0, -1);
                         break;
                     case Utils.Up:
-                        if (this.CurrentLocation["Z"] == this.ThisMaze.GridLayers - 1)
+                        if (this.CurrentLocation.Z == this.MyMaze.GridLayers - 1)
                         {
                             this.SetExactLocation(0, null, null);
                         }
@@ -57,9 +57,9 @@ namespace MazeGameServer.Models
                         }
                         break;
                     case Utils.Down:
-                        if (this.CurrentLocation["Z"] == 0)
+                        if (this.CurrentLocation.Z == 0)
                         {
-                            this.SetExactLocation(this.ThisMaze.GridLayers - 1, null, null);
+                            this.SetExactLocation(this.MyMaze.GridLayers - 1, null, null);
                         }
                         else
                         {
@@ -72,10 +72,10 @@ namespace MazeGameServer.Models
             return false;
         }
 
-        public ResetCharacter()
+        public void ResetCharacter()
         {
-            this.ThisMaze.SetMazeSolvedToFalse();
-            this.CurrentLocation = JSON.parse(JSON.stringify(this.ThisMaze.StartLocation));
+            this.MyMaze.SetMazeSolvedToFalse();
+            this.CurrentLocation = this.MyMaze.StartLocation.Clone();
         }
 
         /**
@@ -88,15 +88,15 @@ namespace MazeGameServer.Models
         {
             if (z != null)
             {
-                this.CurrentLocation["Z"] = (int)z;
+                this.CurrentLocation.Z = (int)z;
             }
             if (y != null)
             {
-                this.CurrentLocation["Y"] = (int)y;
+                this.CurrentLocation.Y = (int)y;
             }
             if (x != null)
             {
-                this.CurrentLocation["X"] = (int)x;
+                this.CurrentLocation.X = (int)x;
             }
         }
 
@@ -108,9 +108,9 @@ namespace MazeGameServer.Models
          */
         public void SetRelativeLocation(int z, int y, int x)
         {
-            this.CurrentLocation["Z"] += z;
-            this.CurrentLocation["Y"] += y;
-            this.CurrentLocation["X"] += x;
+            this.CurrentLocation.Z += z;
+            this.CurrentLocation.Y += y;
+            this.CurrentLocation.X += x;
         }
 
         /**
@@ -123,21 +123,18 @@ namespace MazeGameServer.Models
             {
                 return true;
             }
-            var location = this.ThisMaze.MazeGrid[this.CurrentLocation["Z"]][this.CurrentLocation["Y"]][this.CurrentLocation["X"]];
+            var location = this.MyMaze.MazeGrid[this.CurrentLocation.Z][this.CurrentLocation.Y][this.CurrentLocation.X];
+
             switch (direction)
             {
                 case Utils.North:
                     return location.North;
-                    break;
                 case Utils.East:
                     return location.East;
-                    break;
                 case Utils.South:
                     return location.South;
-                    break;
                 case Utils.West:
                     return location.West;
-                    break;
             }
             return false;
         }

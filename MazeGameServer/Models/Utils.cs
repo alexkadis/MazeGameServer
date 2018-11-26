@@ -34,8 +34,8 @@ namespace MazeGameServer.Models
 		{
             Dictionary<string, object> template = new Dictionary<string, object>();
             template.Add("MazePath", myMaze.MazePath);
-			template.Add("StartLocation", JsonConvert.SerializeObject(myMaze.StartLocation));
-			template.Add("EndLocation", JsonConvert.SerializeObject(myMaze.EndLocation)); //, Formatting.Indented));
+			template.Add("StartLocation", this.SerializeLocation(myMaze.StartLocation));
+			template.Add("EndLocation", this.SerializeLocation(myMaze.EndLocation)); //, Formatting.Indented));
             template.Add("BestPath", myMaze.BestPath);
             template.Add("MazeDifficulty", myMaze.MazeDifficulty);
 			template.Add("GridWidth", myMaze.GridWidth);
@@ -55,8 +55,8 @@ namespace MazeGameServer.Models
 				var templateAsDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(str);
 
 				editedMaze.MazePath = templateAsDictionary["MazePath"];
-				editedMaze.StartLocation = this.StringToLocation(templateAsDictionary["StartLocation"]));
-				editedMaze.EndLocation = this.StringToLocation(templateAsDictionary["EndLocation"]);
+				editedMaze.StartLocation = this.DeserializeLocation(templateAsDictionary["StartLocation"]);
+				editedMaze.EndLocation = this.DeserializeLocation(templateAsDictionary["EndLocation"]);
 				editedMaze.BestPath = templateAsDictionary["BestPath"];
                 editedMaze.MazeDifficulty = Convert.ToInt32(templateAsDictionary["MazeDifficulty"]);
 				editedMaze.GridWidth = Convert.ToInt32(templateAsDictionary["GridWidth"]);
@@ -72,87 +72,85 @@ namespace MazeGameServer.Models
             return editedMaze;
         }
 
-        public Location StringToLocation(string str)
+
+        // could create a Custom JsonConverter but this works, and I'm content with doing it the less efficient way
+        // https://www.newtonsoft.com/json/help/html/CustomJsonConverter.htm
+        public Location DeserializeLocation(string str)
         {
-            var location = new Location();
             var dict = JsonConvert.DeserializeObject<Dictionary<string, int>>(str);
-            location = this.ConvertDictionaryToLocation(dict);
+            var location = new Location(-1, -1, -1);
+            if (dict.ContainsKey("Z") && dict.ContainsKey("Y") && dict.ContainsKey("X"))
+            {
+                location = new Location(dict["Z"], dict["Y"], dict["X"]);
+            }
 
             return location;
         }
 
-        private Location ConvertDictionaryToLocation(Dictionary<string, int> dict)
+        public string SerializeLocation(Location location)
         {
-            var location = new Location();
-            if (dict.ContainsKey("Z"))
-            {
-                location.Z = dict["Z"];
-            }
-            if (dict.ContainsKey("Y"))
-            {
-                location.Y = dict["Y"];
-            }
-            if (dict.ContainsKey("X"))
-            {
-                location.X = dict["X"];
-            }
-            return location;
+            var dict = new Dictionary<string, int>();
+            dict.Add("Z", location.Z);
+            dict.Add("Y", location.Y);
+            dict.Add("X", location.X);
+
+            var str = JsonConvert.SerializeObject(dict);
+
+            return str;
         }
 
-        // https://stackoverflow.com/questions/11576886/how-to-convert-object-to-dictionarytkey-tvalue-in-c/52961405#52961405
-        //private static Dictionary<TKey, TValue> ObjectToDictionary<TKey, TValue>(object source)
+        //public string[] GetRandomDirections()
         //{
-        //    Dictionary<TKey, TValue> result = new Dictionary<TKey, TValue>();
+        //    Random rnd = new Random();
+        //    string[] temp = new string[this.Directions.Length];
 
-        //    TKey[] keys = { };
-        //    TValue[] values = { };
-
-        //    bool outLoopingKeys = false, outLoopingValues = false;
-
-        //    foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(source))
+        //    int j;
+        //    int i;
+        //    string x;
+        //    for (i = this.Directions.Length - 1; i > 0; i--)
         //    {
-        //        object value = property.GetValue(source);
-        //        if (value is Dictionary<TKey, TValue>.KeyCollection)
-        //        {
-        //            keys = ((Dictionary<TKey, TValue>.KeyCollection)value).ToArray();
-        //            outLoopingKeys = true;
-        //        }
-        //        if (value is Dictionary<TKey, TValue>.ValueCollection)
-        //        {
-        //            values = ((Dictionary<TKey, TValue>.ValueCollection)value).ToArray();
-        //            outLoopingValues = true;
-        //        }
-        //        if (outLoopingKeys & outLoopingValues)
-        //        {
-        //            break;
-        //        }
+        //        j = rnd.Next(0, this.Directions.Length - 1);
+        //        x = temp[i];
+        //        temp[i] = temp[j];
+        //        temp[j] = x;
         //    }
-
-        //    for (int i = 0; i < keys.Length; i++)
-        //    {
-        //        result.Add(keys[i], values[i]);
-        //    }
-
-        //    return result;
+        //    return temp;
         //}
 
         public string[] GetRandomDirections()
         {
-            Random rnd = new Random();
             string[] temp = new string[this.Directions.Length];
-
-            int j;
-            int i;
-            string x;
-            for (i = this.Directions.Length - 1; i > 0; i--)
+            Array.Copy(this.Directions, temp, this.Directions.Length);
+            Random rnd = new Random();
+            int n = temp.Length;
+            while (n > 1)
             {
-                j = rnd.Next(0, this.Directions.Length - 1);
-                x = temp[i];
-                temp[i] = temp[j];
-                temp[j] = x;
+                n--;
+                int k = rnd.Next(n + 1);
+                var value = temp[k];
+                temp[k] = temp[n];
+                temp[n] = value;
             }
             return temp;
         }
+
+        //public string[] GetRandomDirections()
+        //{
+        //    Random rnd = new Random();
+        //    string[] temp = new string[this.Directions.Length];
+
+        //    int j;
+        //    int i;
+        //    string x;
+        //    for (i = this.Directions.Length - 1; i > 0; i--)
+        //    {
+        //        j = rnd.Next(0, this.Directions.Length - 1);
+        //        x = temp[i];
+        //        temp[i] = temp[j];
+        //        temp[j] = x;
+        //    }
+        //    return temp;
+        //}
 
     }
 }

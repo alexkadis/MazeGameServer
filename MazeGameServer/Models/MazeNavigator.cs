@@ -5,44 +5,58 @@ using System.Threading.Tasks;
 
 namespace MazeGameServer.Models
 {
-    internal class MazeNavigator
+    public class MazeNavigator
     {
-        internal int attempts;
-        internal string path;
-        private Maze maze;
+        public int Moves { get; set; }
+        public string Path { get; set; }
+        private Maze MyMaze { get; set; }
+        private Utils Utilities { get; }
+        private Character Character { get; }
 
         public MazeNavigator(Maze maze)
         {
-            this.maze = maze;
+            this.Moves = 0;
+            this.MyMaze = maze;
             this.Utilities = new Utils();
-            this.Character = new Character("navigator" + this.Utilities.getRandomIntInclusive(0, 1000), myMaze);
+            Random rnd = new Random();
+            this.Character = new Character("navigator", MyMaze);
         }
 
-        internal void Navigate()
+        public void Navigate()
         {
-            let moved = false;
             while (!this.MyMaze.IsMazeSolved(this.Character.CurrentLocation))
             {
-                const directions = this.Utilities.getRandomDirections();
-                for (let i = 0; i < directions.length; i++)
+                var directions = this.Utilities.GetRandomDirections();
+                for (var i = 0; i < directions.Length; i++)
                 {
                     if (this.Character.CanMoveDirection(directions[i]))
                     {
                         this.Character.move(directions[i]);
-                        this.path += directions[i];
-                        this.attempts++;
-                        moved = true;
+                        this.Path += directions[i];
+                        this.Moves++;
                         break;
                     }
                 }
-                if (!moved)
-                {
-                    this.Character.CurrentLocation = this.Character.PreviousLocation;
-                }
-                moved = false;
             }
             this.Character.ResetCharacter();
         }
-    }
+
+        public bool IsNavigatablePath(string possiblePath)
+        {
+            bool isValidPath = false;
+            Stack<char> path = new Stack<char>(possiblePath.ToArray().Reverse());
+
+            for (int i = 0; i < path.Count; i++)
+            {
+                string next = path.Pop().ToString();
+                if (this.Character.CanMoveDirection(next))
+                {
+                    this.Character.move(next);
+                    this.Moves++;
+                    break;
+                }
+            }
+            return this.MyMaze.IsMazeSolved(this.Character.CurrentLocation);
+        }
     }
 }

@@ -1,0 +1,47 @@
+﻿@model Maze
+@{
+    ViewData["Title"] = "CreateMaze";
+    var maze = Model;
+}
+
+<h2>CreateMaze</h2>
+
+<p>@maze.MazeTemplateCompressed</p>
+
+<br />
+
+@maze.MazeDifficulty : @maze.BestPath
+
+<br /><br />
+@{
+    var dirs = maze.BestPath.ToArray();
+    for (int i = 0; i < dirs.Length; i++)
+    {
+        switch (dirs[i].ToString())
+        {
+            case "N":
+                <span>goNorth();</span>
+                break;
+            case "S":
+                <span>goSouth();</span>
+                break;
+            case "E":
+                <span>goEast();</span>
+                break;
+            case "W":
+                <span>goWest();</span>
+                break;
+            case "U":
+                <span>goUp();</span>
+                break;
+            case "D":
+                <span>goDown();</span>
+                break;
+        }
+    }
+}
+                <br /><br />
+<br />
+[@(maze.StartLocation.Z)][@(maze.StartLocation.Y)][@(maze.StartLocation.X)]
+>
+[@(maze.EndLocation.Z)][@(maze.EndLocation.Y)][@(maze.EndLocation.X)]
