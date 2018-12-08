@@ -11,8 +11,7 @@ namespace MazeGameServer.Models
 	    public Location CurrentLocation;
 	    public Location PreviousLocation;
 	    public Maze MyMaze;
-	    //private Utils Utilities = new Utils();
-
+	    
         public Character (string name, Maze myMaze)
         {
             this.Name = name;
@@ -75,8 +74,9 @@ namespace MazeGameServer.Models
                             this.SetRelativeLocation(-1, 0, 0);
                         }
                         break;
-                }
-                return true;
+					default:
+						return true;
+				}
             }
             return false;
         }
@@ -135,28 +135,21 @@ namespace MazeGameServer.Models
 
             if (this.CurrentLocation.IsValid(this.MyMaze.Template.GridLayers, this.MyMaze.Template.GridHeight, this.MyMaze.Template.GridWidth))
             {
-                //try
-                //{
-                    var location = this.MyMaze.MazeGrid[this.CurrentLocation.Z][this.CurrentLocation.Y][this.CurrentLocation.X];
-                    switch (direction)
-                    {
-                        case Utils.North:
-                            return location.North;
-                        case Utils.East:
-                            return location.East;
-                        case Utils.South:
-                            return location.South;
-                        case Utils.West:
-                            return location.West;
-                    }
-
-                //}
-                //catch (Exception ex)
-                //{
-                    //throw new Exception($"{this.CurrentLocation.ToString()} \n{ex}\n\n\n");
-                //}
+                var location = this.MyMaze.MazeGrid[this.CurrentLocation.Z][this.CurrentLocation.Y][this.CurrentLocation.X];
+                switch (direction)
+                {
+                    case Utils.North:
+                        return location.North;
+                    case Utils.East:
+                        return location.East;
+                    case Utils.South:
+                        return location.South;
+                    case Utils.West:
+                        return location.West;
+					default:
+						return false;
+				}
             }
-
             return false;
         }
     }

@@ -13,13 +13,8 @@ namespace MazeGameServer.Models
 		public bool West { get; set; }
 		public bool Up { get; set; }
 		public bool Down { get; set; }
-
-		//public int Z { get; set; }
-		//public int Y { get; set; }
-		//public int X { get; set; }
         public Location Location { get; set; }
 
-		//public Cell(int z, int y, int x)
         public Cell(Location location)
         {
 			this.North = false;
@@ -28,9 +23,6 @@ namespace MazeGameServer.Models
 			this.West = false;
 			this.Up = false;
 			this.Down = false;
-            //this.Z = z;
-            //this.Y = y;
-            //this.X = x;
             this.Location = location;
 		}
 
