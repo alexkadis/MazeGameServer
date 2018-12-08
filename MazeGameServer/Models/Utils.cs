@@ -44,7 +44,19 @@ namespace MazeGameServer.Models
             return temp;
         }
 
-    }
+		public int ForceNumberToBeWithinRange(int num, int min, int max)
+		{
+			if (num > max)
+			{
+				return max;
+			}
+			if (num < min)
+			{
+				return min;
+			}
+			return num;
+		}
+	}
 }
 
 

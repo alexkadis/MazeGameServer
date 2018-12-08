@@ -44,7 +44,7 @@ namespace MazeGameServerTests
         {
             // random maze
             Maze maze = new Maze(4, 8, 8);
-            maze.DetermineMazeDifficulty(3000, 50);
+            //maze.DetermineMazeDifficulty(3000, 50);
 
             MazeNavigator navigator = new MazeNavigator(maze);
             Assert.IsTrue(navigator.IsNavigatablePath(maze.Template.BestPath));

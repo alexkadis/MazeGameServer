@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MazeGameServer.Models.DAL;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -32,8 +33,9 @@ namespace MazeGameServer
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+			services.AddSingleton<IMazeTemplateDAL, FakeMazeDAL>();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -63,7 +65,29 @@ namespace MazeGameServer
 
             app.UseMvc(routes =>
             {
-                routes.MapRoute(
+				//routes.MapHttpRoute("DefaultApiWithId", "Api/{controller}/{id}", new { id = RouteParameter.Optional }, new { id = @"\d+" });
+				//routes.MapHttpRoute("DefaultApiWithAction", "Api/{controller}/{action}");
+				//routes.MapHttpRoute("DefaultApiGet", "Api/{controller}", new { action = "Get" }, new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
+				//routes.MapHttpRoute("DefaultApiPost", "Api/{controller}", new { action = "Post" }, new { httpMethod = new HttpMethodConstraint(HttpMethod.Post) });
+
+				//routes.MapRoute("DefaultApiWithId", "Api/{controller}/{id}", new { id = RouteParameter.Optional }, new { id = @"\d+" });
+
+				//routes.MapRoute(
+				//name: "api", 
+				//template: "api/mazes",
+				//defaults: new { controller = "Mazes", action = "GetMazes" });
+
+				//routes.MapRoute(
+				//	name: "api",
+				//	template: "api/mazes/{id}",
+				//		defaults: new { controller = "Mazes", action = "GetMaze" });
+
+				//routes.MapRoute(
+				//name: "api",
+				//template: "api/mazes/random",
+				//defaults: new { controller = "Mazes", action = "Random" });
+
+				routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });

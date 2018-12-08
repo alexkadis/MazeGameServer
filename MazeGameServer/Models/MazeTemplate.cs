@@ -16,6 +16,7 @@ namespace MazeGameServer.Models
         public string MazePath { get; set; }
         public string BestPath { get; set; }
         public int MazeDifficulty { get; set; }
+		public int MazeId { get; set; }
 
         public MazeTemplate(Location startLocation, Location endLocation, int gridLayers, int gridHeight, int gridWidth, string mazePath = null, string bestPath = null, int mazeDifficulty = -1)
         {
@@ -38,8 +39,8 @@ namespace MazeGameServer.Models
         {
             try
             {
-                string str = LZString.DecompressFromEncodedURIComponent(mazeTemplateCompressed);
-                var templateAsDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(str);
+                //string str = LZString.DecompressFromEncodedURIComponent(mazeTemplateCompressed);
+                var templateAsDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(mazeTemplateCompressed);
 
                 this.MazePath = templateAsDictionary["MazePath"];
                 this.StartLocation = new Location(templateAsDictionary["StartLocation"]);
@@ -58,7 +59,7 @@ namespace MazeGameServer.Models
             }
         }
 
-        public string Compress(bool encode = false)
+        public string Compress() //(bool encode = false)
         {
             Dictionary<string, object> template = new Dictionary<string, object>
             {
@@ -73,10 +74,10 @@ namespace MazeGameServer.Models
             };
             
             var compressed = JsonConvert.SerializeObject(template);
-            if (encode)
-            {
-                compressed = LZString.CompressToEncodedURIComponent(compressed);
-            }
+            //if (encode)
+            //{
+            //    compressed = LZString.CompressToEncodedURIComponent(compressed);
+            //}
             return compressed;
         }
 
@@ -84,5 +85,119 @@ namespace MazeGameServer.Models
         {
             return new MazeTemplate(StartLocation.Clone(), EndLocation.Clone(), GridLayers, GridHeight, GridWidth, MazePath, BestPath, MazeDifficulty);
         }
+
+		public void SetBestPath()
+		{
+			var maze = new Maze(this);
+			MazeNavigator mazeNavigator = new MazeNavigator(maze);
+
+			// if it already has a valid best path, just leave it as-is
+			if (!string.IsNullOrEmpty(BestPath))
+			{
+				if(mazeNavigator.IsNavigatablePath(BestPath) && BestPath.Length == MazeDifficulty)
+				{
+					return;
+				}
+			}
+			DetermineMazeDifficulty(maze);
+		}
+
+		public void DetermineMazeDifficulty(Maze maze = null, int totalAttempts = 5000, int maximumMovesPerAttempt = 100, int numberOfRounds = 500)
+		{
+			int lowest = Int32.MaxValue;
+			string path = string.Empty;
+
+			if (maze == null)
+			{
+				maze = new Maze(this);
+			}
+			MazeNavigator mazeNavigator = new MazeNavigator(maze);
+
+			// deal with divide by zero
+			if (numberOfRounds < 1)
+			{
+				numberOfRounds = 1;
+			}
+
+			var attemptsThisRound = (totalAttempts / numberOfRounds);
+
+			for (int round = 0; round < numberOfRounds; round++)
+			{
+				for (int attempt = 0; attempt < attemptsThisRound; attempt++)
+				{
+					mazeNavigator.Navigate(maximumMovesPerAttempt);
+					// We want to ignore any number of moves above `maximumMovesPerAttempt`
+					if (mazeNavigator.Moves == -1)
+					{
+						continue;
+					}
+					if (mazeNavigator.Moves < lowest)
+					{
+						lowest = mazeNavigator.Moves;
+						path = mazeNavigator.Path;
+					}
+				}
+
+				if (lowest != Int32.MaxValue)
+				{
+					// we got some result under `maximumMovesPerAttempt`
+					MazeDifficulty = lowest;
+					BestPath = path;
+					return;
+				}
+			}
+			MazeDifficulty = -1;
+			BestPath = null;
+		}
+
+		public bool IsValid()
+		{
+			var navigatable = true;
+			if (!string.IsNullOrEmpty(BestPath))
+			{
+				MazeNavigator mazeNavigator = new MazeNavigator(new Maze(this));
+				navigatable = mazeNavigator.IsNavigatablePath(BestPath) && BestPath.Length == MazeDifficulty;
+			}
+			return (GridLayers > 0)
+				&& (GridHeight > 0)
+				&& (GridWidth > 0)
+				&& StartLocation.IsValid(GridLayers, GridWidth, GridHeight)
+				&& EndLocation.IsValid(GridLayers, GridWidth, GridHeight)
+                && MazePathIsValid()
+                && navigatable;
+		}
+
+		public bool MazePathIsValid()
+		{
+			var dimensions = GridLayers * GridHeight * GridWidth;
+
+			if (dimensions != (MazePath.Length / 2))
+			{
+				return false;
+			}
+
+			var utils = new Utils();
+			foreach (char direction in MazePath)
+			{
+				if(!utils.Directions.Contains(direction.ToString()))
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		public bool Equals(MazeTemplate mazeTemplate)
+		{
+			return GridLayers == mazeTemplate.GridLayers
+				&& GridHeight == mazeTemplate.GridHeight
+				&& GridWidth == mazeTemplate.GridWidth
+			  	&& MazePath == mazeTemplate.MazePath
+				&& MazeId == mazeTemplate.MazeId
+				&& StartLocation.Equals(mazeTemplate.StartLocation)
+				&& EndLocation.Equals(mazeTemplate.EndLocation);
+		}
+
     }
 }

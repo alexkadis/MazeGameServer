@@ -8,7 +8,7 @@ namespace MazeGameServer.Models
     /// <summary>
     /// Each game can have one or many mazes
     /// </summary>
-    public class Game
+    public class User
     {
     
     }

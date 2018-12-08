@@ -59,6 +59,7 @@ namespace MazeGameServer.Models
 
         public bool IsNavigatablePath(string possiblePath)
         {
+			this.Moves = 0;
             Stack<char> path = new Stack<char>(possiblePath.ToArray().Reverse());
             int i = 0;
             for (i = 0; i < possiblePath.Length; i++)
@@ -71,7 +72,8 @@ namespace MazeGameServer.Models
                 }
                 else
                 {
-                    throw new Exception($"Invalid direction: {next}");
+					return false;
+                    //throw new Exception($"Invalid direction: {next}");
                 }
             }
             return this.Character.CurrentLocation.Equals(this.MyMaze.Template.EndLocation);

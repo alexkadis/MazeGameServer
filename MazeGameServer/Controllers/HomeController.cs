@@ -55,7 +55,7 @@ namespace MazeGameServer.Controllers
             Maze maze = new Maze(z, y, x);
             if (determineDifficulty)
             {
-                maze.DetermineMazeDifficulty(5000, 100, 1000);
+                //maze.DetermineMazeDifficulty(5000, 100, 1000);
             }
             var template = maze.Template.Compress();
             //template = $"\"{maze.MazeDifficulty}\": {template}";
