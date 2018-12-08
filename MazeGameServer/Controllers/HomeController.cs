@@ -27,6 +27,15 @@ namespace MazeGameServer.Controllers
         [HttpGet]
         public IActionResult Generate(int z, int y, int x, int n = 1, bool determineDifficulty = true)
         {
+
+            var json = CreateJSON(z, y, x, n, determineDifficulty);
+
+
+            return Content(json, "application / json");
+        }
+
+        private string CreateJSON(int z, int y, int x, int n, bool determineDifficulty = true)
+        {
             string json = String.Empty;
 
             for (int i = 0; i < n; i++)
@@ -37,19 +46,19 @@ namespace MazeGameServer.Controllers
                     json += ",";
                 }
             }
-
-            return Content("{" + json +  "}", "application / json");
+            return "{\"mazes\": [" + json  + "]}";
         }
+
 
         private string CreateMaze(int z, int y, int x, bool determineDifficulty = true)
         {
             Maze maze = new Maze(z, y, x);
             if (determineDifficulty)
             {
-                maze.DetermineMazeDifficulty(10000, 100, 100);
+                maze.DetermineMazeDifficulty(5000, 100, 1000);
             }
-            var template = Utilities.CompressTemplate(maze, false);
-            template = $"\"{maze.MazeDifficulty}\": {template}";
+            var template = maze.Template.Compress();
+            //template = $"\"{maze.MazeDifficulty}\": {template}";
 
             return template;
         }

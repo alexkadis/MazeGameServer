@@ -30,85 +30,59 @@ namespace MazeGameServer.Models
 
 		}
 
-        public string CompressTemplate(Maze myMaze, bool encode = true)
-		{
-            Dictionary<string, object> template = new Dictionary<string, object>();
-            template.Add("MazePath", myMaze.MazePath);
-            if (encode)
-            {
-                template.Add("StartLocation", this.SerializeLocation(myMaze.StartLocation));
-                template.Add("EndLocation", this.SerializeLocation(myMaze.EndLocation));
-            }
-            else
-            {
-                template.Add("StartLocation", myMaze.StartLocation);
-                template.Add("EndLocation", myMaze.EndLocation);
-            }
-            template.Add("BestPath", myMaze.BestPath);
-            template.Add("MazeDifficulty", myMaze.MazeDifficulty);
-			template.Add("GridWidth", myMaze.GridWidth);
-			template.Add("GridHeight", myMaze.GridHeight);
-			template.Add("GridLayers", myMaze.GridLayers);
-			var compressed = JsonConvert.SerializeObject(template);
-            if (encode)
-            {
-                compressed = LZString.CompressToEncodedURIComponent(compressed);
-            }
-            return compressed;
-		}
+  //      public string CompressTemplate(Maze myMaze, bool encode = true)
+		//{
+  //          Dictionary<string, object> template = new Dictionary<string, object>();
+  //          template.Add("MazePath", myMaze.MazePath);
+  //          if (encode)
+  //          {
+  //              template.Add("StartLocation", this.SerializeLocation(myMaze.StartLocation));
+  //              template.Add("EndLocation", this.SerializeLocation(myMaze.EndLocation));
+  //          }
+  //          else
+  //          {
+  //              template.Add("StartLocation", myMaze.StartLocation);
+  //              template.Add("EndLocation", myMaze.EndLocation);
+  //          }
+  //          template.Add("BestPath", myMaze.BestPath);
+  //          template.Add("MazeDifficulty", myMaze.MazeDifficulty);
+		//	template.Add("GridWidth", myMaze.GridWidth);
+		//	template.Add("GridHeight", myMaze.GridHeight);
+		//	template.Add("GridLayers", myMaze.GridLayers);
+		//	var compressed = JsonConvert.SerializeObject(template);
+  //          if (encode)
+  //          {
+  //              compressed = LZString.CompressToEncodedURIComponent(compressed);
+  //          }
+  //          return compressed;
+		//}
 
-        public Maze UncompressTemplate(string mazeTemplateCompressed)
-        {
-            var editedMaze = new Maze(0,0,0);
-            try
-            {
-                string str = LZString.DecompressFromEncodedURIComponent(mazeTemplateCompressed);
-				var templateAsDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(str);
+   //     public Maze UncompressTemplate(string mazeTemplateCompressed)
+   //     {
+   //         var editedMaze = new Maze(0,0,0);
+   //         try
+   //         {
+   //             string str = LZString.DecompressFromEncodedURIComponent(mazeTemplateCompressed);
+			//	var templateAsDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(str);
 
-				editedMaze.MazePath = templateAsDictionary["MazePath"];
-				editedMaze.StartLocation = this.DeserializeLocation(templateAsDictionary["StartLocation"]);
-				editedMaze.EndLocation = this.DeserializeLocation(templateAsDictionary["EndLocation"]);
-				editedMaze.BestPath = templateAsDictionary["BestPath"];
-                editedMaze.MazeDifficulty = Convert.ToInt32(templateAsDictionary["MazeDifficulty"]);
-				editedMaze.GridWidth = Convert.ToInt32(templateAsDictionary["GridWidth"]);
-				editedMaze.GridHeight = Convert.ToInt32(templateAsDictionary["GridHeight"]);
-				editedMaze.GridLayers = Convert.ToInt32(templateAsDictionary["GridLayers"]);
-			}
-            catch
-            {
-                // TODO: Error handling
-                Console.WriteLine("Invalid Maze Template");
-                throw;
-            }
-            return editedMaze;
-        }
+			//	editedMaze.MazePath = templateAsDictionary["MazePath"];
+			//	editedMaze.StartLocation = this.DeserializeLocation(templateAsDictionary["StartLocation"]);
+			//	editedMaze.EndLocation = this.DeserializeLocation(templateAsDictionary["EndLocation"]);
+			//	editedMaze.BestPath = templateAsDictionary["BestPath"];
+   //             editedMaze.MazeDifficulty = Convert.ToInt32(templateAsDictionary["MazeDifficulty"]);
+			//	editedMaze.GridWidth = Convert.ToInt32(templateAsDictionary["GridWidth"]);
+			//	editedMaze.GridHeight = Convert.ToInt32(templateAsDictionary["GridHeight"]);
+			//	editedMaze.GridLayers = Convert.ToInt32(templateAsDictionary["GridLayers"]);
+			//}
+   //         catch
+   //         {
+   //             // TODO: Error handling
+   //             Console.WriteLine("Invalid Maze Template");
+   //             throw;
+   //         }
+   //         return editedMaze;
+   //     }
 
-
-        // could create a Custom JsonConverter but this works, and I'm content with doing it the less efficient way
-        // https://www.newtonsoft.com/json/help/html/CustomJsonConverter.htm
-        public Location DeserializeLocation(string str)
-        {
-            var dict = JsonConvert.DeserializeObject<Dictionary<string, int>>(str);
-            var location = new Location(-1, -1, -1);
-            if (dict.ContainsKey("Z") && dict.ContainsKey("Y") && dict.ContainsKey("X"))
-            {
-                location = new Location(dict["Z"], dict["Y"], dict["X"]);
-            }
-
-            return location;
-        }
-
-        public string SerializeLocation(Location location)
-        {
-            var dict = new Dictionary<string, int>();
-            dict.Add("Z", location.Z);
-            dict.Add("Y", location.Y);
-            dict.Add("X", location.X);
-
-            var str = JsonConvert.SerializeObject(dict);
-
-            return str;
-        }
 
         public string[] GetRandomDirections()
         {

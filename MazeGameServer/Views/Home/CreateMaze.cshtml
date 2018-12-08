@@ -6,15 +6,15 @@
 
 <h2>CreateMaze</h2>
 
-<p>@maze.MazeTemplateCompressed</p>
+@*<p>@maze.Template.MazeTemplateCompressed</p>*@
 
 <br />
 
-@maze.MazeDifficulty : @maze.BestPath
+@maze.Template.MazeDifficulty : @maze.Template.BestPath
 
 <br /><br />
 @{
-    var dirs = maze.BestPath.ToArray();
+    var dirs = maze.Template.BestPath.ToArray();
     for (int i = 0; i < dirs.Length; i++)
     {
         switch (dirs[i].ToString())
@@ -42,6 +42,6 @@
 }
                 <br /><br />
 <br />
-[@(maze.StartLocation.Z)][@(maze.StartLocation.Y)][@(maze.StartLocation.X)]
+[@(maze.Template.StartLocation.Z)][@(maze.Template.StartLocation.Y)][@(maze.Template.StartLocation.X)]
 >
-[@(maze.EndLocation.Z)][@(maze.EndLocation.Y)][@(maze.EndLocation.X)]
+[@(maze.Template.EndLocation.Z)][@(maze.Template.EndLocation.Y)][@(maze.Template.EndLocation.X)]

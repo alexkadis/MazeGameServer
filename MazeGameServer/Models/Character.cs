@@ -17,7 +17,7 @@ namespace MazeGameServer.Models
         {
             this.Name = name;
             this.MyMaze = myMaze;
-            this.CurrentLocation = this.MyMaze.StartLocation.Clone();
+            this.CurrentLocation = this.MyMaze.Template.StartLocation.Clone();
             this.Move(String.Empty);
         }
 
@@ -56,7 +56,7 @@ namespace MazeGameServer.Models
                         this.SetRelativeLocation(0, 0, -1);
                         break;
                     case Utils.Up:
-                        if (this.CurrentLocation.Z == this.MyMaze.GridLayers - 1)
+                        if (this.CurrentLocation.Z == this.MyMaze.Template.GridLayers - 1)
                         {
                             this.SetExactLocation(0, null, null);
                         }
@@ -68,7 +68,7 @@ namespace MazeGameServer.Models
                     case Utils.Down:
                         if (this.CurrentLocation.Z == 0)
                         {
-                            this.SetExactLocation(this.MyMaze.GridLayers - 1, null, null);
+                            this.SetExactLocation(this.MyMaze.Template.GridLayers - 1, null, null);
                         }
                         else
                         {
@@ -84,7 +84,7 @@ namespace MazeGameServer.Models
         public void ResetCharacter()
         {
             this.MyMaze.SetMazeSolvedToFalse();
-            this.CurrentLocation = this.MyMaze.StartLocation.Clone();
+            this.CurrentLocation = this.MyMaze.Template.StartLocation.Clone();
         }
 
         /**
@@ -133,10 +133,10 @@ namespace MazeGameServer.Models
                 return true;
             }
 
-            if (this.CurrentLocation.IsValid(this.MyMaze.MazeGrid.Length, this.MyMaze.MazeGrid[0].Length, this.MyMaze.MazeGrid[0][0].Length))
+            if (this.CurrentLocation.IsValid(this.MyMaze.Template.GridLayers, this.MyMaze.Template.GridHeight, this.MyMaze.Template.GridWidth))
             {
-                try
-                {
+                //try
+                //{
                     var location = this.MyMaze.MazeGrid[this.CurrentLocation.Z][this.CurrentLocation.Y][this.CurrentLocation.X];
                     switch (direction)
                     {
@@ -150,11 +150,11 @@ namespace MazeGameServer.Models
                             return location.West;
                     }
 
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"{this.CurrentLocation.ToString()} \n{ex}\n\n\n");
-                }
+                //}
+                //catch (Exception ex)
+                //{
+                    //throw new Exception($"{this.CurrentLocation.ToString()} \n{ex}\n\n\n");
+                //}
             }
 
             return false;

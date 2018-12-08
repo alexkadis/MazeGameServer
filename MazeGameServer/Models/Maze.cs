@@ -9,78 +9,67 @@ namespace MazeGameServer.Models
 {
     public class Maze
     {
-        // grid
-        public int GridLayers { get; set; } = 4;
-        public int GridWidth { get; set; } = 8;
-        public int GridHeight { get; set; } = 8;
-        public Cell[][][] MazeGrid { get; set; }
+        public MazeTemplate Template { get; private set; }
 
-        // templating
-        public Location StartLocation { get; set; }
-        public Location EndLocation { get; set; }
-        public string MazePath { get; set; }
-        public string MazeTemplateCompressed { get; set; }
-        public int MazeDifficulty { get; set; } = 0;
-        public string BestPath { get; set; } = string.Empty;
+        private Location StartLocation { get; set; }
+        private int GridLayers { get; set; }
+        private int GridHeight { get; set; }
+        private int GridWidth { get; set; }
+
+
+        public Cell[][][] MazeGrid { get; set; }
 
         // status
         private bool MazeSolved { get; set; } = false;
 
-
         // utilities
         private Utils Utilities { get; }
 
+        public Maze(MazeTemplate mazeTemplate)
+        {
+            Template = mazeTemplate;
+            this.MazeGrid = this.GenerateGrid(Template.GridLayers, Template.GridHeight, Template.GridWidth);
+            this.FillMazeProcedural();
+        }
 
-        public Maze(int gridLayers, int gridWidth, int gridHeight, string mazeTemplateCompressed = null,
+        public Maze(string mazeTemplateCompressed)
+        {
+            this.Utilities = new Utils();
+
+            Template = new MazeTemplate(mazeTemplateCompressed);
+            this.MazeGrid = this.GenerateGrid(Template.GridLayers, Template.GridHeight, Template.GridWidth);
+            this.FillMazeProcedural();
+        }
+
+        public Maze(int gridLayers = 4, int gridWidth = 8, int gridHeight = 8,
                     Location startLocation = null, Location endLocation = null)
         {
             this.Utilities = new Utils();
 
-            this.GridLayers = gridLayers;
-            this.GridWidth = gridWidth;
-            this.GridHeight = gridHeight;
+			//gridWidth = (gridWidth >= 2) ? gridWidth : 2;
+			//gridHeight = (gridHeight >= 2) ? gridHeight : 2;
 
-            this.MazeGrid = this.GenerateGrid();
+            this.MazeGrid = this.GenerateGrid(gridLayers, gridHeight, gridWidth);
 
-            if (mazeTemplateCompressed != null)
+            if (startLocation == null)
             {
-                this.MazeTemplateCompressed = mazeTemplateCompressed;
-                this.TemplateToSelf();
-                this.MazePath = this.FillMazeProcedural();
+                startLocation = new Location(0, 0, 0);
             }
-            else
+            this.StartLocation = startLocation;
+
+			
+            if (endLocation == null)
             {
-                if (startLocation == null)
-                {
-                    this.StartLocation = new Location(0, 0, 0);
-                }
-                else
-                {
-                    this.StartLocation = startLocation;
-                }
-
-                if (endLocation == null)
-                {
-                    Random rnd = new Random();
-
-                    this.GridWidth = (this.GridWidth >= 2) ? this.GridWidth : 2;
-                    this.GridHeight = (this.GridHeight >= 2) ? this.GridHeight : 2;
-
-                    this.EndLocation = new Location
-                        (
-                            0,
-                            rnd.Next(1, this.GridWidth - 1),
-                            rnd.Next(1, this.GridHeight - 1)
-                        );
-                }
-                else
-                {
-                    this.EndLocation = endLocation;
-                }
-                this.MazePath = this.FillMazeRandom();
-
-                this.MazeTemplateCompressed = this.Utilities.CompressTemplate(this);
+                Random rnd = new Random();
+                endLocation = new Location
+                    (
+                        0,
+                        rnd.Next(1, gridWidth - 1),
+                        rnd.Next(1, gridHeight - 1)
+                    );
             }
+
+            Template = new MazeTemplate(startLocation, endLocation, gridLayers, gridHeight, gridWidth, this.FillMazeRandom());
         }
 
         public void SetMazeSolvedToFalse()
@@ -97,7 +86,7 @@ namespace MazeGameServer.Models
             }
             else
             {
-                return this.MazeSolved = currentLocation.Equals(this.EndLocation);
+                return this.MazeSolved = currentLocation.Equals(Template.EndLocation);
             }
         }
         
@@ -136,13 +125,13 @@ namespace MazeGameServer.Models
                 if (lowest != Int32.MaxValue)
                 {
                     // we got some result under `maximumMovesPerAttempt`
-                    this.MazeDifficulty = lowest;
-                    this.BestPath = path;
+                    Template.MazeDifficulty = lowest;
+                    Template.BestPath = path;
                     return;
                 }
             }
-            this.MazeDifficulty = -1;
-            this.BestPath = "Unable to find best path.";
+            Template.MazeDifficulty = -1;
+            Template.BestPath = "Unable to find best path.";
         }
 
         //// TODO: Figure out how to make this work, and figure out how to make it memory efficent
@@ -171,16 +160,20 @@ namespace MazeGameServer.Models
         //    this.BestPath = bestPath;
         //}
 
-        private Cell[][][] GenerateGrid()
+        private Cell[][][] GenerateGrid(int layers, int height, int width)
         {
-            Cell[][][] tempGrid = new Cell[this.GridLayers][][];
+			this.GridLayers = layers;
+			this.GridHeight = height;
+			this.GridWidth = width;
 
-            for (int i = 0; i < this.GridLayers; i++)
+			Cell[][][] tempGrid = new Cell[layers][][];
+
+            for (int i = 0; i < layers; i++)
             {
-                tempGrid[i] = new Cell[this.GridHeight][];
-                for (int j = 0; j < this.GridHeight; j++)
+                tempGrid[i] = new Cell[height][];
+                for (int j = 0; j < height; j++)
                 {
-                    tempGrid[i][j] = new Cell[this.GridWidth];
+                    tempGrid[i][j] = new Cell[width];
                 }
             }
             return tempGrid;
@@ -191,9 +184,10 @@ namespace MazeGameServer.Models
             int index = -1;
             string output = string.Empty;
 
-            List<Cell> cellsList = new List<Cell>
+            List<Cell> cellsList = new List<Cell>()
             {
-                new Cell(this.StartLocation.Z, this.StartLocation.Y, this.StartLocation.X)
+                //new Cell(this.StartLocation.Z, this.StartLocation.Y, this.StartLocation.X)
+                new Cell(this.StartLocation)
             };
 
             while (cellsList.Count > 0)
@@ -234,40 +228,36 @@ namespace MazeGameServer.Models
 
         private bool IsEmptyCell(Cell cell)
         {
-            return (IsValidCell(cell) && this.MazeGrid[cell.Z][cell.Y][cell.X] == null);
-        }
+			var valid = IsValidCell(cell);
+			try 
+			{
+				var place = (this.MazeGrid[cell.Location.Z][cell.Location.Y][cell.Location.X] == null);
+				return valid & place;
+			}
+			catch
+			{
+
+			}
+			return false;
+		}
 
         public bool IsValidCell(Cell cell)
         {
-            return (cell.Z >= 0 && cell.Z < this.GridLayers
-                && cell.Y >= 0 && cell.Y < this.GridHeight
-                && cell.X >= 0 && cell.X < this.GridWidth);
+			return cell.Location.IsValid(this.GridLayers, this.GridHeight, this.GridWidth);
         }
 
-        private void TemplateToSelf()
+        private void FillMazeProcedural()
         {
-            var tempMaze = this.Utilities.UncompressTemplate(this.MazeTemplateCompressed);
-            this.MazePath = tempMaze.MazePath;
-            this.StartLocation = tempMaze.StartLocation;
-            this.EndLocation = tempMaze.EndLocation;
-            this.BestPath = tempMaze.BestPath;
-            this.MazeDifficulty = tempMaze.MazeDifficulty;
-            this.GridWidth = tempMaze.GridWidth;
-            this.GridHeight = tempMaze.GridHeight;
-            this.GridLayers = tempMaze.GridLayers;
-            this.MazeGrid = this.GenerateGrid();
-        }
+            Stack<char> path = new Stack<char>(Template.MazePath.ToArray().Reverse());
 
-        private string FillMazeProcedural()
-        {
-            Stack<char> path = new Stack<char>(this.MazePath.ToArray().Reverse());
+            List<Cell> cellsList = new List<Cell>
+            {
+                new Cell(Template.StartLocation.Clone())
+            };
 
-            List<Cell> cellsList = new List<Cell>();
-            List<Cell> cellsListBackup = new List<Cell>();
-            cellsList.Add(new Cell(this.StartLocation.Z, this.StartLocation.Y, this.StartLocation.X));
             int index = -1;
 
-            string mazePath = String.Empty;
+            //string mazePath = String.Empty;
 
             while (cellsList.Count > 0)
             {
@@ -293,21 +283,20 @@ namespace MazeGameServer.Models
                         this.AddCellToGrid(nextCell);
 
                         cellsList.Add(nextCell);
-                        cellsListBackup.Add(nextCell);
                     }
-                    else
-                    {
-                        throw new Exception($"Invalid Cell: [{currentCell.Z}][{currentCell.Y}][{currentCell.X}] > {next} > [{nextCell.Z}][{nextCell.Y}][{nextCell.X}]\n{this.MazePath}\n\n\n{mazePath}");
-                    }
+                    //else
+                    //{
+                    //    throw new Exception($"Invalid Cell: [{currentCell.Z}][{currentCell.Y}][{currentCell.X}] > {next} > [{nextCell.Z}][{nextCell.Y}][{nextCell.X}]\n{Template.MazePath}\n\n\n{mazePath}");
+                    //}
                 }
-                mazePath += next;
+                //mazePath += next;
             }
-            return mazePath;
+            //return mazePath;
         }
 
         private void AddCellToGrid(Cell cell)
         {
-            this.MazeGrid[cell.Z][cell.Y][cell.X] = cell;
+            this.MazeGrid[cell.Location.Z][cell.Location.Y][cell.Location.X] = cell;
         }
 
         private void CarvePathBetweenCells(ref Cell currentCell, ref Cell nextCell, string direction)
@@ -349,27 +338,27 @@ namespace MazeGameServer.Models
             switch (direction)
             {
                 case Utils.North:
-                    return new Cell(cell.Z, cell.Y - 1, cell.X);
-                case Utils.East:
-                    return new Cell(cell.Z, cell.Y, cell.X + 1);
+                    return new Cell(new Location(cell.Location.Z, cell.Location.Y - 1, cell.Location.X));
                 case Utils.South:
-                    return new Cell(cell.Z, cell.Y + 1, cell.X);
+                    return new Cell(new Location(cell.Location.Z, cell.Location.Y + 1, cell.Location.X));
                 case Utils.West:
-                    return new Cell(cell.Z, cell.Y, cell.X - 1);
+                    return new Cell(new Location(cell.Location.Z, cell.Location.Y, cell.Location.X - 1));
+                case Utils.East:
+                    return new Cell(new Location(cell.Location.Z, cell.Location.Y, cell.Location.X + 1));
                 case Utils.Up:
                     // if we're at the top layer, loop around
-                    if (cell.Z == this.GridLayers - 1)
-                        return new Cell(0, cell.Y, cell.X);
+                    if (cell.Location.Z == this.GridLayers - 1)
+                        return new Cell(new Location(0, cell.Location.Y, cell.Location.X));
                     else
-                        return new Cell(cell.Z + 1, cell.Y, cell.X);
+                        return new Cell(new Location(cell.Location.Z, cell.Location.Y, cell.Location.X));
                 case Utils.Down:
                     // if we're at the bottom layer, loop around
-                    if (cell.Z == 0)
-                        return new Cell(this.GridLayers - 1, cell.Y, cell.X);
+                    if (cell.Location.Z == 0)
+                        return new Cell(new Location(this.GridLayers - 1, cell.Location.Y, cell.Location.X));
                     else
-                        return new Cell(cell.Z - 1, cell.Y, cell.X);
+                        return new Cell(new Location(cell.Location.Z - 1, cell.Location.Y, cell.Location.X));
             }
-            return new Cell(cell.Z, cell.Y, cell.Z);
+            return cell.Clone();
         }
     }
 }

@@ -18,7 +18,6 @@ namespace MazeGameServer.Models
             this.Moves = 0;
             this.MyMaze = maze;
             this.Utilities = new Utils();
-            //Random rnd = new Random();
             this.Character = new Character("navigator", MyMaze);
         }
 
@@ -43,7 +42,7 @@ namespace MazeGameServer.Models
                         break;
                     }
                 }
-                if (this.Character.CurrentLocation.Equals(this.MyMaze.EndLocation))
+                if (this.Character.CurrentLocation.Equals(this.MyMaze.Template.EndLocation))
                 {
                     break;
                 }
@@ -53,7 +52,7 @@ namespace MazeGameServer.Models
         private void Reset()
         {
             //this.Character = this.Character.Clone();
-            this.Character.CurrentLocation = this.MyMaze.StartLocation.Clone();
+            this.Character.CurrentLocation = this.MyMaze.Template.StartLocation.Clone();
             this.Path = String.Empty;
             this.Moves = 0;
         }
@@ -75,7 +74,7 @@ namespace MazeGameServer.Models
                     throw new Exception($"Invalid direction: {next}");
                 }
             }
-            return this.Character.CurrentLocation.Equals(this.MyMaze.EndLocation);
+            return this.Character.CurrentLocation.Equals(this.MyMaze.Template.EndLocation);
         }
     }
 }

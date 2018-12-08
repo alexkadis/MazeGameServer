@@ -26,18 +26,18 @@ namespace MazeGameServerTests
         //    Assert.AreNotEqual(difficulty1, maze.BestPath);
         //}
 
-        //[TestMethod]
-        //public void NavigatorCanTestSolution()
-        //{
-        //    var compressed = "N4IgsghgXgpgChALgCxALhAZQKoFEByA6nrrpjqTtsdprrQCJnb4sMOsGFPk476tMhAflwdsbdkJaFyDQrNnUpOYRMYMKTUniZMJxNRKK1Z8g+YBC1y6Qa3LJ4WPzs7Q8UYXz2o-SVY8GW4xMnJLQmsCaktsS0wbG3lMdm4hIhSyenJaGWMaOMcBei4mCJtaRKqbOjtrVkT7asdqpuabXHau7vb8Hv7msVtKgdGxxKzC8fa26bn+kAAaLEQIACdEABkAewBjJABLbYA7dBBgAB0QAC0rtAAGRauATTvHq4ANN4BfJZBcY4AEx2+0QR1OGEuNzeTxAr3QAHZYV90ABWX7LSwwADOiAQKDOf0gsAYBwAZmSDrsAK4AG0QAE90I8QABxNYHQGETkEtAADmW7M5AAkYAcAObIRDoAVsjnAiAMmBrbHoAAs3yAA";
+        [TestMethod]
+        public void NavigatorCanTestSolution()
+        {
+            var compressed = "N4IgsghgXgpgChALgCxALhAZQKoFEByA6nrrpjqTtsdprrQCJnb4sMOsGFPk476tMhAflwdsbdkJaFyDQrNnUpOYRMYMKTUniZMJxNRKK1Z8g+YBC1y6Qa3LJ4WPzs7Q8UYXz2o-SVY8GW4xMnJLQmsCaktsS0wbG3lMdm4hIhSyenJaGWMaOMcBei4mCJtaRKqbOjtrVkT7asdqpuabXHau7vb8Hv7msVtKgdGxxKzC8fa26bn+kAAaLEQIACdEABkAewBjJABLbYA7dBBgAB0QAC0rtAAGRauATTvHq4ANN4BfJZBcY4AEx2+0QR1OGEuNzeTxAr3QAHZYV90ABWX7LSwwADOiAQKDOf0gsAYBwAZmSDrsAK4AG0QAE90I8QABxNYHQGETkEtAADmW7M5AAkYAcAObIRDoAVsjnAiAMmBrbHoAAs3yAA";
 
-        //    Maze maze = new Maze(0, 0, 0, compressed);
-        //    var valdSolution = "DUSUDUENSUSNDUSEWUUWUEDUSUWEDUWDUDDDDUSDDUUUDDDUESUUDSDEWEUUNDUUSEWEUUENSUSE";
+            Maze maze = new Maze(compressed);
+            var valdSolution = "DUSUDUENSUSNDUSEWUUWUEDUSUWEDUWDUDDDDUSDDUUUDDDUESUUDSDEWEUUNDUUSEWEUUENSUSE";
 
-        //    MazeNavigator navigator = new MazeNavigator(maze);
-        //    Assert.IsTrue(navigator.IsNavigatablePath(valdSolution));
+            MazeNavigator navigator = new MazeNavigator(maze);
+            Assert.IsTrue(navigator.IsNavigatablePath(valdSolution));
 
-        //}
+        }
 
         [TestMethod]
         public void NavigatorCanSolveMaze()
@@ -48,19 +48,19 @@ namespace MazeGameServerTests
             //maze.DetermineMazeDifficultyParallel(1000);
 
             MazeNavigator navigator = new MazeNavigator(maze);
-            Assert.IsTrue(navigator.IsNavigatablePath(maze.BestPath));
-            var wait = false;
+            Assert.IsTrue(navigator.IsNavigatablePath(maze.Template.BestPath));
+            //var wait = false;
 
         }
 
 
-        //[TestMethod]
-        //public void RecreateMazeRandomMazeProcedurally()
-        //{
-        //    Maze maze = new Maze(4, 8, 8);
-        //    Utils utils = new Utils();
-        //    Maze maze2 = new Maze(0, 0, 0, maze.MazeTemplateCompressed);
-        //    Assert.AreEqual(maze.MazePath, maze2.MazePath);
-        //}
+        [TestMethod]
+        public void RecreateMazeRandomMazeProcedurally()
+        {
+            Maze maze = new Maze(4, 8, 8);
+            Utils utils = new Utils();
+            Maze maze2 = new Maze(maze.Template.Clone());
+            Assert.AreEqual(maze.Template.MazePath, maze2.Template.MazePath);
+        }
     }
 }
