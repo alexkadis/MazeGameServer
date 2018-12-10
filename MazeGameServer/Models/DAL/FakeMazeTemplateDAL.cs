@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace MazeGameServer.Models.DAL
 {
-	public class FakeMazeDAL : IMazeTemplateDAL
+	public class FakeMazeTemplateDAL : IMazeTemplateDAL
 	{
 		private readonly Dictionary<int, MazeTemplate> mazeTemplates = new Dictionary<int, MazeTemplate>()
 		{
@@ -16,40 +16,16 @@ namespace MazeGameServer.Models.DAL
 					gridHeight: 8,
 					gridWidth: 8,
 					mazePath: "ESSDWDEEDDSDWDWDNDNDNDSENEDSWWNEBBBSSSDSSENDWNDSSDENWWSDSEDNWSDNNNDDNDSSUBBBBEBBBBBBBEDEDENEENNWSDENENNEUSDSUSWSEDDNWSSEDWDEDWWNDNNNWSWSEDWSESWBDDNDWWSEEEDNEENNNNWDNEDDSWWNDDNDEDDSENDWBDDBBBBBBWWDSDNWWWSEEDWBENEBWDSESSDENWWDSUSDENENNEDBBBWDWSWSDENNBWBBEENNBESDNBBSWBBBBBBBBDDBBBSBBBBBBBBBBBSUBSWSEBBBBBBBBBWBBNNWSBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSESWBBBBBBBBBBBBBBBBBBBDBBBBBBBBBBBBBBBBBBBBBBBBBBENEBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBWBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
-					bestPath: "UDUUUUEDSDUEUDUDEWWNUUUUUWUUUSDDUEUNEUUUWUUUWSUNDSUNDUDSDUESSUDD",
-					mazeDifficulty: 64
-			)},
-			{1, new MazeTemplate (
-					startLocation: new Location (0, 0, 0),
-					endLocation: new Location (0, 3, 1),
-					gridLayers: 4,
-					gridHeight: 8,
-					gridWidth: 8,
-					mazePath: "ESSDWDEEDDSDWDWDNDNDNDSENEDSWWNEBBBSSSDSSENDWNDSSDENWWSDSEDNWSDNNNDDNDSSUBBBBEBBBBBBBEDEDENEENNWSDENENNEUSDSUSWSEDDNWSSEDWDEDWWNDNNNWSWSEDWSESWBDDNDWWSEEEDNEENNNNWDNEDDSWWNDDNDEDDSENDWBDDBBBBBBWWDSDNWWWSEEDWBENEBWDSESSDENWWDSUSDENENNEDBBBWDWSWSDENNBWBBEENNBESDNBBSWBBBBBBBBDDBBBSBBBBBBBBBBBSUBSWSEBBBBBBBBBWBBNNWSBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSESWBBBBBBBBBBBBBBBBBBBDBBBBBBBBBBBBBBBBBBBBBBBBBBENEBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBWBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
-					bestPath: "3333333333333333",
-					mazeDifficulty: 33
+					bestPath: "UDUUUUEDSDUEUDUDEWWNUUUUUWUUUSDDUEUNEUUUWUUUWSUNDSUNDUDSDUESSUDD"
 			)}
-
 		};
-
-		//private readonly MazeTemplate invalidMazeTemplate = new MazeTemplate
-		//(
-		//	startLocation: null,
-		//	endLocation: null,
-		//	gridLayers: -1,
-		//	gridHeight: -1,
-		//	gridWidth: -1,
-		//	mazePath: null,
-		//	bestPath: null,
-		//	mazeDifficulty: -1
-		//);
 
 		public MazeTemplate GetMaze(int mazeId)
 		{
 			return mazeTemplates.GetValueOrDefault(mazeId);
 		}
 
-		public IList<MazeTemplate> GetAllMazeTemplatesInRange(int lowestMazeTemplateId = 0, int numberOfMazes = 50)
+		public IList<MazeTemplate> GetAllMazeTemplates() //InRange(int lowestMazeTemplateId = 0, int numberOfMazes = 50)
 		{
 			// just currently returns all of the mazes... would have to do a limit clause for a DB
 			return mazeTemplates.Values.ToList();
@@ -85,16 +61,21 @@ namespace MazeGameServer.Models.DAL
 				&& mazeTemplate.Equals(mazeTemplates[mazeTemplate.MazeId]);
 		}
 
-		public MazeTemplate UpdateMaze(int mazeId, MazeTemplate mazeTemplate)
+        public bool MazeExists(int id)
+        {
+            return mazeTemplates.ContainsKey(id);
+        }
+
+        public MazeTemplate UpdateMaze(int mazeId, MazeTemplate mazeTemplate)
 		{
 			if(mazeTemplate.IsValid())
 			{
 				mazeTemplate.SetBestPath();
 
-				if (mazeTemplates.ContainsKey(mazeId))
+				if (mazeTemplates.ContainsKey(mazeTemplate.MazeId))
 				{
-					mazeTemplate.MazeId = mazeId;
-					mazeTemplates[mazeId] = mazeTemplate;
+                    mazeTemplate.MazeId = mazeId;
+                    mazeTemplates[mazeId] = mazeTemplate;
 				}
 
 				return mazeTemplate;

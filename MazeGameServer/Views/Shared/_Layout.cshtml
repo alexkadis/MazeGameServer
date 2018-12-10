@@ -2,31 +2,21 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    @*<meta name="viewport" content="width=device-width, initial-scale=1.0" />*@
-    <title>@ViewData["Title"] - MazeGameServer</title>
-
-    <environment include="Development">
-        @*<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />*@
-        @*<link rel="stylesheet" href="~/css/site.css" />*@
-    </environment>
-    <environment exclude="Development">
-        @*<link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
-              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
-              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />*@
-        @*<link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />*@
-    </environment>
-    <style>        body {
-            word-break: break-all;
-        }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Alex Kadis</title>
+    <style>
+    body {
+        word-break: break-all;
+    }
     </style>
 </head>
 <body>
     <nav class="">
         <ul class="nav navbar-nav">
             <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-            <li><a asp-area="" asp-controller="Home" asp-action="Generate" asp-route-Z="4" asp-route-Y="8" , asp-route-X="8">Create 1 Maze</a></li>
-            <li><a asp-area="" asp-controller="Home" asp-action="Generate" asp-route-Z="4" asp-route-Y="8" , asp-route-X="8" asp-route-n="5" asp-route-determineDifficulty="true">Create 5 Mazes</a></li>
-            <li><a asp-area="" asp-controller="Home" asp-action="Generate" asp-route-Z="4" asp-route-Y="8" , asp-route-X="8" asp-route-n="100" asp-route-determineDifficulty="true">Create 100 Mazes</a></li>
+            <li><a asp-controller="ApiMazes" asp-action="GetMazes">All Mazes</a></li>
+            <li><a asp-controller="ApiMazes" asp-action="Random">Random Maze</a></li>
+
         </ul>
     </nav>
 

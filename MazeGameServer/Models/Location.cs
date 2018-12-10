@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using System;
 using System.Collections.Generic;
 
 namespace MazeGameServer.Models
@@ -13,6 +15,8 @@ namespace MazeGameServer.Models
         {
             this.Deserialize(locationString);
         }
+
+        [JsonConstructor]
         public Location(int z, int y, int x)
         {
             this.Z = z;
@@ -52,16 +56,33 @@ namespace MazeGameServer.Models
 
         // could create a Custom JsonConverter but this works, and I'm content with doing it the less efficient way
         // https://www.newtonsoft.com/json/help/html/CustomJsonConverter.htm
-        public void Deserialize(string str)
+        public void Deserialize(string locationString)
         {
-            var dict = JsonConvert.DeserializeObject<Dictionary<string, int>>(str);
-            var location = new Location(-1, -1, -1);
-            if (dict.ContainsKey("Z") && dict.ContainsKey("Y") && dict.ContainsKey("X"))
+            List<string> errors = new List<string>();
+
+            var settings = new JsonSerializerSettings
             {
-                Z = dict["Z"];
-                Y = dict["Y"];
-                Z = dict["Z"];
-            }
+                ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
+                Error = delegate (object sender, ErrorEventArgs args)
+                {
+                    errors.Add(args.ErrorContext.Error.Message);
+                    args.ErrorContext.Handled = true;
+                }
+            };
+            var obj = JsonConvert.DeserializeObject<Location>(locationString, settings);
+
+            Z = obj.Z;
+            Y = obj.Y;
+            X = obj.X;
+
+            //var dict = JsonConvert.DeserializeObject<Dictionary<string, int>>(str);
+            //var location = new Location(-1, -1, -1);
+            //if (dict.ContainsKey("Z") && dict.ContainsKey("Y") && dict.ContainsKey("X"))
+            //{
+            //    Z = dict["Z"];
+            //    Y = dict["Y"];
+            //    Z = dict["Z"];
+            //}
         }
 
         public string Serialize()

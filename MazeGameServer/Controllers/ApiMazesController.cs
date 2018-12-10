@@ -8,35 +8,32 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 
+
 namespace MazeGameServer.Controllers
 {
-	[Route("api/[controller]")]
+	[Route("api/mazes")]
 	[ApiController]
-	public class MazesController : ControllerBase
+	public class ApiMazesController : ControllerBase
 	{
 		// http://book.techelevator.com/.net/70-javascript/55-create-rest-api/05-dotnet.html
 
 		private IMazeTemplateDAL dal;
 
-		public MazesController(IMazeTemplateDAL dal)
+		public ApiMazesController(IMazeTemplateDAL dal)
 		{
 			this.dal = dal;
 		}
 
-		[HttpGet]
+        [HttpGet]
 		public ActionResult<List<MazeTemplate>> GetMazes()
 		{
-			return dal.GetAllMazeTemplatesInRange().ToList();
+			return dal.GetAllMazeTemplates().ToList();
 		}
 
 		[HttpGet("{id?}", Name = "GetMaze")]
 		public ActionResult<MazeTemplate> GetMaze(int? id)
 		{
-			if (id == null)
-			{
-				return NotFound();
-			}
-			else
+			if (id != null)
 			{
 				var mazeTemplate = dal.GetMaze((int)id);
 
@@ -104,24 +101,33 @@ namespace MazeGameServer.Controllers
 			{
 				return NotFound();
 			}
+            try
+            {
+                dal.UpdateMaze(id, mazeTemplate);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message == "Invalid Direction in Path")
+                {
+                    return StatusCode(Microsoft.AspNetCore.Http.StatusCodes.Status422UnprocessableEntity,"Given bestPath is not a possible solution to the maze.");
+                }
+            }
 
-			dal.UpdateMaze(id, mazeTemplate);
-
-			return NoContent();
-		}
+            return NoContent();
+        }
 
 		[HttpDelete("{id}")]
 		public ActionResult Delete(int id)
 		{
-			var mazeTemplate = dal.GetMaze(id);
+            var mazeId = (int)id;
+			var mazeTemplate = dal.GetMaze(mazeId);
 
 			if (mazeTemplate == null)
 			{
 				return NotFound();
 			}
 
-			dal.DeleteMaze(id);
-
+			dal.DeleteMaze(mazeId);
 			return NoContent();
 		}
 

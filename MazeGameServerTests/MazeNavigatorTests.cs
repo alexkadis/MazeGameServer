@@ -29,14 +29,20 @@ namespace MazeGameServerTests
         [TestMethod]
         public void NavigatorCanTestSolution()
         {
-            var compressed = "N4IgsghgXgpgChALgCxALhAZQKoFEByA6nrrpjqTtsdprrQCJnb4sMOsGFPk476tMhAflwdsbdkJaFyDQrNnUpOYRMYMKTUniZMJxNRKK1Z8g+YBC1y6Qa3LJ4WPzs7Q8UYXz2o-SVY8GW4xMnJLQmsCaktsS0wbG3lMdm4hIhSyenJaGWMaOMcBei4mCJtaRKqbOjtrVkT7asdqpuabXHau7vb8Hv7msVtKgdGxxKzC8fa26bn+kAAaLEQIACdEABkAewBjJABLbYA7dBBgAB0QAC0rtAAGRauATTvHq4ANN4BfJZBcY4AEx2+0QR1OGEuNzeTxAr3QAHZYV90ABWX7LSwwADOiAQKDOf0gsAYBwAZmSDrsAK4AG0QAE90I8QABxNYHQGETkEtAADmW7M5AAkYAcAObIRDoAVsjnAiAMmBrbHoAAs3yAA";
-
-            Maze maze = new Maze(compressed);
-            var valdSolution = "DUSUDUENSUSNDUSEWUUWUEDUSUWEDUWDUDDDDUSDDUUUDDDUESUUDSDEWEUUNDUUSEWEUUENSUSE";
-
+            var template = new MazeTemplate(
+                    startLocation: new Location(0, 0, 0),
+                    endLocation: new Location(0, 3, 1),
+                    gridLayers: 4,
+                    gridHeight: 8,
+                    gridWidth: 8,
+                    mazePath: "ESSDWDEEDDSDWDWDNDNDNDSENEDSWWNEBBBSSSDSSENDWNDSSDENWWSDSEDNWSDNNNDDNDSSUBBBBEBBBBBBBEDEDENEENNWSDENENNEUSDSUSWSEDDNWSSEDWDEDWWNDNNNWSWSEDWSESWBDDNDWWSEEEDNEENNNNWDNEDDSWWNDDNDEDDSENDWBDDBBBBBBWWDSDNWWWSEEDWBENEBWDSESSDENWWDSUSDENENNEDBBBWDWSWSDENNBWBBEENNBESDNBBSWBBBBBBBBDDBBBSBBBBBBBBBBBSUBSWSEBBBBBBBBBWBBNNWSBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSESWBBBBBBBBBBBBBBBBBBBDBBBBBBBBBBBBBBBBBBBBBBBBBBENEBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBWBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+                    bestPath: "UDUUUUEDSDUEUDUDEWWNUUUUUWUUUSDDUEUNEUUUWUUUWSUNDSUNDUDSDUESSUDD",
+                    mazeDifficulty: 64
+            );
+            
+            Maze maze = new Maze(template);
             MazeNavigator navigator = new MazeNavigator(maze);
-            Assert.IsTrue(navigator.IsNavigatablePath(valdSolution));
-
+            Assert.IsTrue(navigator.IsNavigatablePath(template.BestPath));
         }
 
         [TestMethod]
@@ -44,7 +50,7 @@ namespace MazeGameServerTests
         {
             // random maze
             Maze maze = new Maze(4, 8, 8);
-            //maze.DetermineMazeDifficulty(3000, 50);
+            maze.Template.DetermineMazeDifficulty(maze, 3000, 50);
 
             MazeNavigator navigator = new MazeNavigator(maze);
             Assert.IsTrue(navigator.IsNavigatablePath(maze.Template.BestPath));

@@ -7,13 +7,13 @@ namespace MazeGameServer.Models.DAL
 {
     public interface IMazeTemplateDAL
 	{
-		/// <summary>
-		/// Gets all maze templates within a range of IDs.
-		/// </summary>
-		/// <returns>The maze templates in range.</returns>
-		/// <param name="lowestMazeTemplateId">Lowest maze template identifier.</param>
-		/// <param name="numberOfMazes">Number of mazes to return. Maximum is 50.</param>
-        IList<MazeTemplate> GetAllMazeTemplatesInRange(int lowestMazeTemplateId = 0, int numberOfMazes = 50); // maximum number of mazes is 50
+        /// <summary>
+        /// Gets all maze templates within a range of IDs.
+        /// </summary>
+        /// <returns>The maze templates in range.</returns>
+        //// <param name="lowestMazeTemplateId">Lowest maze template identifier.</param>
+        //// <param name="numberOfMazes">Number of mazes to return. Maximum is 50.</param>
+        IList<MazeTemplate> GetAllMazeTemplates(); // sInRange(int lowestMazeTemplateId = 0, int numberOfMazes = 50); // maximum number of mazes is 50
 
 		/// <summary>
 		/// Generates a random maze.

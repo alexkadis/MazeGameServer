@@ -15,10 +15,19 @@ namespace MazeGameServer.Models
         public int GridWidth { get; private set; }
         public string MazePath { get; set; }
         public string BestPath { get; set; }
-        public int MazeDifficulty { get; set; }
+        public int MazeDifficulty
+        {
+            get
+            {
+                if (BestPath.Length > 0)
+                    return BestPath.Length;
+                return -1;
+            }
+        }
 		public int MazeId { get; set; }
 
-        public MazeTemplate(Location startLocation, Location endLocation, int gridLayers, int gridHeight, int gridWidth, string mazePath = null, string bestPath = null, int mazeDifficulty = -1)
+        [JsonConstructor]
+        public MazeTemplate(Location startLocation, Location endLocation, int gridLayers, int gridHeight, int gridWidth, string mazePath = null, string bestPath = null)
         {
             StartLocation = startLocation;
             EndLocation = endLocation;
@@ -27,7 +36,17 @@ namespace MazeGameServer.Models
             GridWidth = gridWidth;
             MazePath = mazePath;
             BestPath = bestPath;
-            MazeDifficulty = mazeDifficulty;
+        }
+        
+        public MazeTemplate(MazeTemplate mazeTemplate)
+        {
+            StartLocation = mazeTemplate.StartLocation;
+            EndLocation = mazeTemplate.EndLocation;
+            GridLayers = mazeTemplate.GridLayers;
+            GridHeight = mazeTemplate.GridHeight;
+            GridWidth = mazeTemplate.GridWidth;
+            MazePath = mazeTemplate.MazePath;
+            BestPath = mazeTemplate.BestPath;
         }
 
         public MazeTemplate(string mazeTemplateCompressed)
@@ -46,7 +65,6 @@ namespace MazeGameServer.Models
                 this.StartLocation = new Location(templateAsDictionary["StartLocation"]);
                 this.EndLocation = new Location(templateAsDictionary["EndLocation"]);
                 this.BestPath = templateAsDictionary["BestPath"];
-                this.MazeDifficulty = Convert.ToInt32(templateAsDictionary["MazeDifficulty"]);
                 this.GridWidth = Convert.ToInt32(templateAsDictionary["GridWidth"]);
                 this.GridHeight = Convert.ToInt32(templateAsDictionary["GridHeight"]);
                 this.GridLayers = Convert.ToInt32(templateAsDictionary["GridLayers"]);
@@ -67,7 +85,6 @@ namespace MazeGameServer.Models
                 { "StartLocation", this.StartLocation},
                 { "EndLocation", this.EndLocation},
                 { "BestPath", this.BestPath},
-                { "MazeDifficulty", this.MazeDifficulty},
                 { "GridWidth", this.GridWidth},
                 { "GridHeight", this.GridHeight},
                 { "GridLayers", this.GridLayers}
@@ -83,7 +100,7 @@ namespace MazeGameServer.Models
 
         public MazeTemplate Clone()
         {
-            return new MazeTemplate(StartLocation.Clone(), EndLocation.Clone(), GridLayers, GridHeight, GridWidth, MazePath, BestPath, MazeDifficulty);
+            return new MazeTemplate(StartLocation.Clone(), EndLocation.Clone(), GridLayers, GridHeight, GridWidth, MazePath, BestPath);
         }
 
 		public void SetBestPath()
@@ -141,12 +158,10 @@ namespace MazeGameServer.Models
 				if (lowest != Int32.MaxValue)
 				{
 					// we got some result under `maximumMovesPerAttempt`
-					MazeDifficulty = lowest;
 					BestPath = path;
 					return;
 				}
 			}
-			MazeDifficulty = -1;
 			BestPath = null;
 		}
 
@@ -156,7 +171,7 @@ namespace MazeGameServer.Models
 			if (!string.IsNullOrEmpty(BestPath))
 			{
 				MazeNavigator mazeNavigator = new MazeNavigator(new Maze(this));
-				navigatable = mazeNavigator.IsNavigatablePath(BestPath) && BestPath.Length == MazeDifficulty;
+                navigatable = mazeNavigator.IsNavigatablePath(BestPath);
 			}
 			return (GridLayers > 0)
 				&& (GridHeight > 0)
@@ -169,17 +184,22 @@ namespace MazeGameServer.Models
 
 		public bool MazePathIsValid()
 		{
-			var dimensions = GridLayers * GridHeight * GridWidth;
+			var dimensions = (double)GridLayers * GridHeight * GridWidth;
+            var pathLength = ((double)MazePath.Length + 1) / 2;
 
-			if (dimensions != (MazePath.Length / 2))
+            if (dimensions != pathLength)
 			{
 				return false;
 			}
 
 			var utils = new Utils();
-			foreach (char direction in MazePath)
+            var directions = new string[utils.Directions.Length + 1];
+            utils.Directions.CopyTo(directions,0);
+            directions[directions.Length - 1] = Utils.Back;
+
+            foreach (char direction in MazePath)
 			{
-				if(!utils.Directions.Contains(direction.ToString()))
+				if(!directions.Contains(direction.ToString()))
 				{
 					return false;
 				}

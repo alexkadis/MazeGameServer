@@ -72,8 +72,9 @@ namespace MazeGameServer.Models
                 }
                 else
                 {
-					return false;
+                    //return false;
                     //throw new Exception($"Invalid direction: {next}");
+                    throw new Exception("Invalid Direction in Path");
                 }
             }
             return this.Character.CurrentLocation.Equals(this.MyMaze.Template.EndLocation);
