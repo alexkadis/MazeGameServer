@@ -29,6 +29,12 @@ namespace MazeGameServer.Models.DAL
 		MazeTemplate GetMaze(int mazeId);
 
 		/// <summary>
+		/// Gets the high scores for this particular maze template
+		/// </summary>
+		/// <returns>The high scores.</returns>
+		int[] GetHighScores();
+
+		/// <summary>
 		/// Given a MazeTemplate:
 		/// Checks to make sure the maze is valid, and if so it saves it
 		/// </summary>
@@ -45,9 +51,16 @@ namespace MazeGameServer.Models.DAL
 		MazeTemplate UpdateMaze(int mazeId, MazeTemplate mazeTemplate);
 
 		/// <summary>
+		/// Checks to see if a maze is already in our database
+		/// </summary>
+		/// <returns><c>true</c>, if exists was mazed, <c>false</c> otherwise.</returns>
+		/// <param name="mazeTemplate">Maze template.</param>
+		bool MazeExists(MazeTemplate mazeTemplate);
+
+		/// <summary>
 		/// Deletes a maze.
 		/// </summary>
 		/// <param name="mazeId">Maze identifier.</param>
-        void DeleteMaze(int mazeId);
+		void DeleteMaze(int mazeId);
     }
 }

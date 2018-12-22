@@ -17,17 +17,17 @@ namespace MazeGameServer.Controllers
 	{
 		// http://book.techelevator.com/.net/70-javascript/55-create-rest-api/05-dotnet.html
 
-		private IMazeTemplateDAL dal;
+		private IMazeTemplateDAL MazeTemplateDAL;
 
 		public ApiMazesController(IMazeTemplateDAL dal)
 		{
-			this.dal = dal;
+			this.MazeTemplateDAL = dal;
 		}
 
         [HttpGet]
 		public ActionResult<List<MazeTemplate>> GetMazes()
 		{
-			return dal.GetAllMazeTemplates().ToList();
+			return MazeTemplateDAL.GetAllMazeTemplates().ToList();
 		}
 
 		[HttpGet("{id?}", Name = "GetMaze")]
@@ -35,7 +35,7 @@ namespace MazeGameServer.Controllers
 		{
 			if (id != null)
 			{
-				var mazeTemplate = dal.GetMaze((int)id);
+				var mazeTemplate = MazeTemplateDAL.GetMaze((int)id);
 
 				if (mazeTemplate != null)
 				{
@@ -78,7 +78,7 @@ namespace MazeGameServer.Controllers
 
 			for (int i = 0; i < count; i++)
 			{
-				mazeTemplates.Add(dal.GenerateRandomMaze(layers, height, width));
+				mazeTemplates.Add(MazeTemplateDAL.GenerateRandomMaze(layers, height, width));
 			}
 
 			return mazeTemplates;
@@ -87,29 +87,44 @@ namespace MazeGameServer.Controllers
 		[HttpPost]
 		public ActionResult Create(MazeTemplate mazeTemplate)
 		{
-			var newMazeTemplate = dal.SaveMaze(mazeTemplate);
-
-			return CreatedAtRoute("GetMaze", new { id = mazeTemplate.MazeId }, newMazeTemplate);
+			if (mazeTemplate.IsValid())
+			{
+				if(!MazeTemplateDAL.MazeExists(mazeTemplate))
+				{
+					var newMazeTemplate = MazeTemplateDAL.SaveMaze(mazeTemplate);
+					return CreatedAtRoute("GetMaze", new { id = newMazeTemplate.MazeId }, newMazeTemplate);
+				}
+				else
+				{
+					return StatusCode(Microsoft.AspNetCore.Http.StatusCodes.Status422UnprocessableEntity, "MazeTemplate Exists, Use HTTP PUT.");
+				}
+			}
+			return StatusCode(Microsoft.AspNetCore.Http.StatusCodes.Status422UnprocessableEntity, "Invalid MazeTemplate");
 		}
 
 
 		[HttpPut("{id}")]
 		public ActionResult Update(int id, MazeTemplate mazeTemplate)
 		{
-			var existingMaze = dal.GetMaze(id);
+			var existingMaze = MazeTemplateDAL.GetMaze(id);
 			if (existingMaze == null)
 			{
 				return NotFound();
 			}
-            try
-            {
-                dal.UpdateMaze(id, mazeTemplate);
+
+			try
+			{
+				if (mazeTemplate.IsValid())
+				{
+					MazeTemplateDAL.UpdateMaze(id, mazeTemplate);
+
+				}
             }
             catch (Exception ex)
             {
-                if (ex.Message == "Invalid Direction in Path")
+                if (ex.Message == "InvalidBestPath")
                 {
-                    return StatusCode(Microsoft.AspNetCore.Http.StatusCodes.Status422UnprocessableEntity,"Given bestPath is not a possible solution to the maze.");
+                    return StatusCode(Microsoft.AspNetCore.Http.StatusCodes.Status422UnprocessableEntity, "BestPath is not a possible solution to the maze.");
                 }
             }
 
@@ -119,15 +134,14 @@ namespace MazeGameServer.Controllers
 		[HttpDelete("{id}")]
 		public ActionResult Delete(int id)
 		{
-            var mazeId = (int)id;
-			var mazeTemplate = dal.GetMaze(mazeId);
+			var mazeTemplate = MazeTemplateDAL.GetMaze(id);
 
 			if (mazeTemplate == null)
 			{
 				return NotFound();
 			}
 
-			dal.DeleteMaze(mazeId);
+			MazeTemplateDAL.DeleteMaze(id);
 			return NoContent();
 		}
 

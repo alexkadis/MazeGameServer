@@ -42,16 +42,10 @@ namespace MazeGameServer.Models.DAL
 
 		public MazeTemplate SaveMaze(MazeTemplate mazeTemplate)
 		{
-			var valid = mazeTemplate.IsValid();
-			var exists = MazeExists(mazeTemplate);
-			if (valid && !exists)
-			{
-				int nextId = mazeTemplates.Keys.ToList().OrderByDescending(i => i).First() + 1;
-				mazeTemplate.MazeId = nextId;
-				mazeTemplates[nextId] = mazeTemplate;
-				return mazeTemplate;
-			}
-			return null;
+			int nextId = mazeTemplates.Keys.ToList().OrderByDescending(i => i).First() + 1;
+			mazeTemplate.MazeId = nextId;
+			mazeTemplates[nextId] = mazeTemplate;
+			return mazeTemplate;
 		}
 
 		// checks to see if the maze is already in our database

@@ -12,18 +12,20 @@ namespace MazeGameServer.Controllers
     [ApiController]
     public class ApiGamesController : ControllerBase
     {
-        private IGameDAL dal;
+        private IGameDAL GameDAL;
+        private IMazeTemplateDAL MazeTemplateDAL;
 
-        public ApiGamesController(IGameDAL dal)
+        public ApiGamesController(IGameDAL gameDAL, IMazeTemplateDAL mazeTemplateDAL)
         {
-            this.dal = dal;
+            GameDAL = gameDAL;
+            MazeTemplateDAL = mazeTemplateDAL;
         }
 
 
         [HttpGet]
         public ActionResult<List<Game>> GetGames()
         {
-            return dal.GetAllGames().ToList();
+            return GameDAL.GetAllGames().ToList();
         }
 
         [HttpGet("{id?}", Name = "GetGame")]
@@ -31,7 +33,7 @@ namespace MazeGameServer.Controllers
         {
             if (id != null)
             {
-                var game = dal.GetGame((int)id);
+                var game = GameDAL.GetGame((int)id);
 
                 if (game != null)
                 {
@@ -40,5 +42,51 @@ namespace MazeGameServer.Controllers
             }
             return NotFound();
         }
-    }
+
+		[HttpGet("{id?}", Name = "GetRanking")]
+		public ActionResult<Game> GetRanking(int? id)
+		{
+			if (id != null)
+			{
+				var game = GameDAL.GetGame((int)id);
+
+				if (game != null)
+				{
+					return game;
+				}
+			}
+			return NotFound();
+		}
+
+
+
+		[HttpPost]
+		public ActionResult Create(Game game)
+		{
+			if (game.MazeTemplate.IsValid())
+			{
+				if (!MazeTemplateDAL.MazeExists(game.MazeTemplate))
+				{
+					MazeTemplateDAL.SaveMaze(game.MazeTemplate);
+				}
+				var newGame = GameDAL.SaveGame(game);
+				return CreatedAtRoute("GatGame", new { id = newGame.GameId }, newGame);
+			}
+			return StatusCode(Microsoft.AspNetCore.Http.StatusCodes.Status422UnprocessableEntity, "Invalid MazeTemplate");
+		}
+
+		[HttpDelete("{id}")]
+		public ActionResult Delete(int id)
+		{
+			var game = GameDAL.GetGame(id);
+
+			if (game == null)
+			{
+				return NotFound();
+			}
+
+			GameDAL.DeleteGame(id);
+			return NoContent();
+		}
+	}
 }

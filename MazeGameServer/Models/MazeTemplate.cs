@@ -8,11 +8,11 @@ namespace MazeGameServer.Models
 {
     public class MazeTemplate
     {
-        public Location StartLocation { get; private set; }
-        public Location EndLocation { get; private set; }
-        public int GridLayers { get; private set; }
-        public int GridHeight { get; private set; }
-        public int GridWidth { get; private set; }
+        public Location StartLocation { get; set; }
+        public Location EndLocation { get; set; }
+        public int GridLayers { get; set; }
+        public int GridHeight { get; set; }
+        public int GridWidth { get; set; }
         public string MazePath { get; set; }
         public string BestPath { get; set; }
         public int MazeDifficulty
@@ -47,6 +47,10 @@ namespace MazeGameServer.Models
             GridWidth = mazeTemplate.GridWidth;
             MazePath = mazeTemplate.MazePath;
             BestPath = mazeTemplate.BestPath;
+        }
+
+        public MazeTemplate()
+        {
         }
 
         public MazeTemplate(string mazeTemplateCompressed)
@@ -182,12 +186,13 @@ namespace MazeGameServer.Models
                 && navigatable;
 		}
 
-		public bool MazePathIsValid()
+		private bool MazePathIsValid()
 		{
 			var dimensions = (double)GridLayers * GridHeight * GridWidth;
             var pathLength = ((double)MazePath.Length + 1) / 2;
 
-            if (dimensions != pathLength)
+			// https://stackoverflow.com/questions/1398753/comparing-double-values-in-c-sharp
+			if (Math.Abs(dimensions - pathLength) > 0.001)
 			{
 				return false;
 			}

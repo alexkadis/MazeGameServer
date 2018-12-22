@@ -13,19 +13,19 @@ namespace MazeGameServer.Models.DAL
             { 0, new Game
                 {
                     GameDate = new DateTime(),
-                    MazeId = 0,
                     PathTaken = "UDUUUUEDSDUEUDUDEWWNUUUUUWUUUSDDUEUNEUUUWUUUWSUNDSUNDUDSDUESSUDD",
                     UserId = 0,
-                    Username = "apple"
-                }
-            },
-            { 1, new Game
-                {
-                    GameDate = new DateTime(),
-                    MazeId = 1,
-                    PathTaken = "UDUUUUEDSDUEUDUDEWWNUUUUUWUUUSDDUEUNEUUUWUUUWSUNDSUNDUDSDUESSUDD",
-                    UserId = 0,
-                    Username = "apple"
+                    Username = "apple",
+                    MazeTemplate = new MazeTemplate()
+                    {
+                        StartLocation = new Location (0, 0, 0),
+                        EndLocation = new Location(0, 3, 1),
+                        GridLayers = 4,
+                        GridHeight = 8,
+                        GridWidth = 8,
+                        MazePath = "ESSDWDEEDDSDWDWDNDNDNDSENEDSWWNEBBBSSSDSSENDWNDSSDENWWSDSEDNWSDNNNDDNDSSUBBBBEBBBBBBBEDEDENEENNWSDENENNEUSDSUSWSEDDNWSSEDWDEDWWNDNNNWSWSEDWSESWBDDNDWWSEEEDNEENNNNWDNEDDSWWNDDNDEDDSENDWBDDBBBBBBWWDSDNWWWSEEDWBENEBWDSESSDENWWDSUSDENENNEDBBBWDWSWSDENNBWBBEENNBESDNBBSWBBBBBBBBDDBBBSBBBBBBBBBBBSUBSWSEBBBBBBBBBWBBNNWSBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSESWBBBBBBBBBBBBBBBBBBBDBBBBBBBBBBBBBBBBBBBBBBBBBBENEBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBWBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+                        BestPath = "UDUUUUEDSDUEUDUDEWWNUUUUUWUUUSDDUEUNEUUUWUUUWSUNDSUNDUDSDUESSUDD"
+                    }
                 }
             }
         };
@@ -42,25 +42,20 @@ namespace MazeGameServer.Models.DAL
 
         Game IGameDAL.SaveGame(Game game)
         {
-            //var exists = MazeExists(game.MazeId);
-            //if (valid && !exists)
-            //{
-            //    int nextId = mazeTemplates.Keys.ToList().OrderByDescending(i => i).First() + 1;
-            //    mazeTemplate.MazeId = nextId;
-            //    mazeTemplates[nextId] = mazeTemplate;
-            //    return mazeTemplate;
-            //}
-            return null;
-        }
-
-        Game IGameDAL.UpdateGame(int gameId, Game game)
-        {
-            throw new NotImplementedException();
+                int nextId = Games.Keys.ToList().OrderByDescending(i => i).First() + 1;
+                game.GameId = nextId;
+                Games[nextId] = game;
+                return game;
         }
 
         void IGameDAL.DeleteGame(int gameId)
         {
-            throw new NotImplementedException();
-        }
-    }
+			Games.Remove(gameId);
+		}
+
+		public int GetRanking(int gameId)
+		{
+			throw new NotImplementedException();
+		}
+	}
 }
